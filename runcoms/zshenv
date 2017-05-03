@@ -9,3 +9,6 @@
 if [[ "$SHLVL" -eq 1 && ! -o LOGIN && -s "${ZDOTDIR:-$HOME}/.zprofile" ]]; then
   source "${ZDOTDIR:-$HOME}/.zprofile"
 fi
+
+JAVA_HOME='/Library/Java/JavaVirtualMachines/jdk1.8.0_73.jdk/Contents/Home'
+PATH=$PATH:/Users/meastes/Scripts

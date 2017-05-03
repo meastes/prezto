@@ -1,0 +1,115 @@
+# Load dependencies.
+pmodload 'helper'
+
+function prompt_mike_pwd {
+  local pwd="${PWD/#$HOME/~}"
+
+  if [[ "$pwd" == (#m)[/~] ]]; then
+    _prompt_mike_pwd="$MATCH"
+    unset MATCH
+  else
+    _prompt_mike_pwd="${${${${(@j:/:M)${(@s:/:)pwd}##.#?}:h}%/}//\%/%%}/${${pwd:t}//\%/%%}"
+  fi
+}
+
+function prompt_mike_git_info {
+  if (( _prompt_mike_precmd_async_pid > 0 )); then
+    # Append Git status.
+    if [[ -s "$_prompt_mike_precmd_async_data" ]]; then
+      alias typeset='typeset -g'
+      source "$_prompt_mike_precmd_async_data"
+      RPROMPT+='${git_info:+${(e)git_info[status]}}'
+      unalias typeset
+    fi
+
+    # Reset PID.
+    _prompt_mike_precmd_async_pid=0
+
+    # Redisplay prompt.
+    zle && zle reset-prompt
+  fi
+}
+
+function prompt_mike_precmd_async {
+  # Get Git repository information.
+  if (( $+functions[git-info] )); then
+    git-info
+    typeset -p git_info >! "$_prompt_mike_precmd_async_data"
+  fi
+
+  # Signal completion to parent process.
+  kill -WINCH $$
+}
+
+function prompt_mike_precmd {
+  setopt LOCAL_OPTIONS
+  unsetopt XTRACE KSH_ARRAYS
+
+  # Format PWD.
+  prompt_mike_pwd
+
+  # Define prompts.
+  RPROMPT=''
+
+  # Kill the old process of slow commands if it is still running.
+  if (( _prompt_mike_precmd_async_pid > 0 )); then
+    kill -KILL "$_prompt_mike_precmd_async_pid" &>/dev/null
+  fi
+
+  # Compute slow commands in the background.
+  trap prompt_mike_git_info WINCH
+  prompt_mike_precmd_async &!
+  _prompt_mike_precmd_async_pid=$!
+
+  # if (( $+functions[git-info] )); then
+  #   git_status=git-info
+  # fi
+  # $git_status
+}
+
+function prompt_mike_setup {
+  setopt LOCAL_OPTIONS
+  unsetopt XTRACE KSH_ARRAYS
+  prompt_opts=(cr percent subst)
+  _prompt_mike_precmd_async_pid=0
+  _prompt_mike_precmd_async_data="${TMPPREFIX}-prompt_mike_data"
+
+  # Load required functions.
+  autoload -Uz add-zsh-hook
+
+  # Add hook for calling git-info before each command.
+  add-zsh-hook precmd prompt_mike_precmd
+
+  # Set git-info parameters.
+  # zstyle ':prezto:module:git:info' verbose 'yes'
+  # zstyle ':prezto:module:git:info:branch' format '%F{green}%b%f'
+  # zstyle ':prezto:module:git:info:clean' format ' %F{green}✔%f'
+  # zstyle ':prezto:module:git:info:dirty' format ' %F{red}✗%f'
+  # zstyle ':prezto:module:git:info:keys' format \
+    # 'prompt' ' %F{green}(%f$(coalesce "%b" "%p" "%c")${git_info[rprompt]}%s%F{green})%f' \
+    # 'rprompt' '%C%D'
+  zstyle ':prezto:module:git:info' verbose 'yes'
+  zstyle ':prezto:module:git:info:action' format '%F{7}:%f%%B%F{9}%s%f%%b'
+  zstyle ':prezto:module:git:info:added' format ' %%B%F{2}✚%f%%b'
+  zstyle ':prezto:module:git:info:ahead' format ' %%B%F{13}⬆%f%%b'
+  zstyle ':prezto:module:git:info:behind' format ' %%B%F{13}⬇%f%%b'
+  zstyle ':prezto:module:git:info:branch' format ' %%B%F{2}%b%f%%b'
+  zstyle ':prezto:module:git:info:commit' format ' %%B%F{3}%.7c%f%%b'
+  zstyle ':prezto:module:git:info:deleted' format ' %%B%F{1}✖%f%%b'
+  zstyle ':prezto:module:git:info:modified' format ' %%B%F{4}✱%f%%b'
+  zstyle ':prezto:module:git:info:position' format ' %%B%F{13}%p%f%%b'
+  zstyle ':prezto:module:git:info:renamed' format ' %%B%F{5}➜%f%%b'
+  zstyle ':prezto:module:git:info:stashed' format ' %%B%F{6}✭%f%%b'
+  zstyle ':prezto:module:git:info:unmerged' format ' %%B%F{3}═%f%%b'
+  zstyle ':prezto:module:git:info:untracked' format ' %%B%F{7}◼%f%%b'
+  zstyle ':prezto:module:git:info:keys' format \
+    'status' '$(coalesce "%b" "%p" "%c")%s%A%B%S%a%d%m%r%U%u'
+
+  # Define prompts.
+  # PROMPT='%F{blue}%n%f%F{red}@%F{red}%m$f %F{blue}${_prompt_mike_pwd}${(e)git_info[prompt]}> '
+  PROMPT='%F{blue}%n%f%F{red}@%F{red}%m$f %F{blue}${_prompt_mike_pwd}> '
+  RPROMPT=''
+  SPROMPT=''
+}
+
+prompt_mike_setup "$@"
