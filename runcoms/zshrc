@@ -18,10 +18,6 @@ if [[ -s "${HOME}/.iterm2-ssh.zsh" ]]; then
 fi
 
 # Aliases
-alias nerdery-sshtunnel='ssh -C2qTnN -D 8088 meastes@gate.sierrabravo.net'
-#alias nerdery-vpn='sshuttle --dns 204.62.151.87 -r meastes@gate.sierrabravo.net'
-alias nerdery-vpn='sshuttle -r meastes@gate.sierrabravo.net 0/0'
-alias timesheet='~/Work/Code/BRAVO.MainframeTerminal/mfp-vpn.sh'
 alias spotlightOff='sudo launchctl unload -w /System/Library/LaunchDaemons/com.apple.metadata.mds.plist'
 alias spotlightOn='sudo launchctl load -w /System/Library/LaunchDaemons/com.apple.metadata.mds.plist'
 
