@@ -188,3 +188,6 @@ zstyle ':prezto:module:terminal' auto-title 'yes'
 
 # Set the default session name:
 # zstyle ':prezto:module:tmux:session' name 'YOUR DEFAULT SESSION NAME'
+
+# Fix for no color support in ls
+zstyle ':prezto:module:utility:ls' color 'no'
