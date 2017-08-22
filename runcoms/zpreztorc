@@ -41,7 +41,8 @@ zstyle ':prezto:load' pmodule \
   'history-substring-search' \
   'ssh' \
   'prompt' \
-  'autosuggestions'
+  'autosuggestions'\
+  'zsh-iterm-touchbar'
 
 #
 # Autosuggestions
