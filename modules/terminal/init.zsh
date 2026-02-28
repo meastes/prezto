@@ -7,7 +7,7 @@
 #
 
 # Return if requirements are not found.
-if [[ "$TERM" == (dumb|linux|*bsd*|eterm*) ]]; then
+if [[ $TERM == (dumb|linux|*bsd*|eterm*) ]]; then
   return 1
 fi
 
@@ -49,7 +49,7 @@ function _terminal-set-titles-with-command {
     local -A jobtexts_from_parent_shell
     jobtexts_from_parent_shell=(${(kv)jobtexts})
 
-    jobs "$job_name" 2>/dev/null > >(
+    jobs "$job_name" 2> /dev/null > >(
       read index discarded
       # The index is already surrounded by brackets: [1].
       _terminal-set-titles-with-command "${(e):-\$jobtexts_from_parent_shell$index}"
@@ -60,7 +60,7 @@ function _terminal-set-titles-with-command {
     local truncated_cmd="${cmd/(#m)?(#c15,)/${MATCH[1,12]}...}"
     unset MATCH
 
-    if [[ "$TERM" == screen* ]]; then
+    if [[ $TERM == screen* ]]; then
       set-multiplexer-title "$truncated_cmd"
     fi
     set-tab-title "$truncated_cmd"
@@ -78,7 +78,7 @@ function _terminal-set-titles-with-path {
   local truncated_path="${abbreviated_path/(#m)?(#c15,)/...${MATCH[-12,-1]}}"
   unset MATCH
 
-  if [[ "$TERM" == screen* ]]; then
+  if [[ $TERM == screen* ]]; then
     set-multiplexer-title "$truncated_path"
   fi
   set-tab-title "$truncated_path"
@@ -89,7 +89,7 @@ function _terminal-set-titles-with-path {
 autoload -Uz add-zsh-hook
 
 # Set up the Apple Terminal.
-if [[ "$TERM_PROGRAM" == 'Apple_Terminal' ]] \
+if [[ $TERM_PROGRAM == Apple_Terminal ]] \
   && ( ! [[ -n "$STY" || -n "$TMUX" || -n "$DVTM" ]] )
 then
   # Sets the Terminal.app current working directory before the prompt is
